@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus AI Assistant | CGC University Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Plus Jakarta Sans & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        pastel: {
+                            lavender: '#EEF2FF',
+                            lavenderDark: '#C7D2FE',
+                            mint: '#ECFDF5',
+                            mintDark: '#A7F3D0',
+                            rose: '#FDF2F8',
+                            roseDark: '#FBCFE8',
+                            sky: '#E0F2FE',
+                            skyDark: '#BAE6FD',
+                            cream: '#FFFBEB',
+                            purple: '#F3E8FF',
+                            textDark: '#1E293B',
+                            textMuted: '#64748B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Smooth Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(199, 210, 254, 0.8);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(165, 180, 252, 1);
+        }
+
+        /* Pastel Soft Glassmorphism */
+        .glass-pastel-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        .glass-pastel-nav {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        /* Smooth UI Transitions */
+        .tab-content {
+            animation: fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: translateY(6px) scale(0.99);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .map-node:hover rect {
+            fill: #E0E7FF;
+            stroke: #6366F1;
+            stroke-width: 2.5;
+            filter: drop-shadow(0px 6px 12px rgba(99, 102, 241, 0.2));
+            transform: translateY(-2px);
+        }
+        .map-node rect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Typing Dots Animation */
+        .typing-dot {
+            animation: typingAnimation 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Ambient Glow Spheres */
+        .pastel-glow-1 {
+            background: radial-gradient(circle, rgba(199, 210, 254, 0.45) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        .pastel-glow-2 {
+            background: radial-gradient(circle, rgba(251, 207, 232, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        .pastel-glow-3 {
+            background: radial-gradient(circle, rgba(167, 243, 208, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/40 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-200 selection:text-indigo-900">
+
+    <!-- Ambient Pastel Glowing Background Spheres -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-32 -left-32 w-[30rem] h-[30rem] pastel-glow-1 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 -right-32 w-[28rem] h-[28rem] pastel-glow-2 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-32 left-1/3 w-[32rem] h-[32rem] pastel-glow-3 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- ONBOARDING MODAL OVERLAY -->
+    <div id="onboarding-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md transition-all duration-300">
+        <div class="glass-pastel-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl border border-indigo-100 bg-white/95 relative animate-in fade-in zoom-in duration-300">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-400 to-pink-300 flex items-center justify-center text-white text-2xl shadow-md shadow-indigo-200 mb-3">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-xl font-extrabold text-indigo-950">Welcome to CGC Assistant</h2>
+                <p class="text-xs text-slate-500 mt-1">Please enter your student details to personalize your portal dashboard.</p>
+            </div>
+
+            <form id="onboarding-form" onsubmit="handleOnboardingSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
+                    <input type="text" id="input-name" required placeholder="e.g. Aarav Sharma" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Roll / Student ID *</label>
+                        <input type="text" id="input-roll" required placeholder="e.g. 2210991001" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Semester *</label>
+                        <select id="input-sem" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-400 font-medium">
+                            <option value="1st Sem">1st Sem</option>
+                            <option value="2nd Sem">2nd Sem</option>
+                            <option value="3rd Sem">3rd Sem</option>
+                            <option value="4th Sem">4th Sem</option>
+                            <option value="5th Sem" selected>5th Sem</option>
+                            <option value="6th Sem">6th Sem</option>
+                            <option value="7th Sem">7th Sem</option>
+                            <option value="8th Sem">8th Sem</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Department / Course *</label>
+                        <select id="input-dept" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-400 font-medium">
+                            <option value="B.Tech CSE">B.Tech CSE</option>
+                            <option value="B.Tech AI & DS">B.Tech AI & DS</option>
+                            <option value="BCA">BCA</option>
+                            <option value="MCA">MCA</option>
+                            <option value="MBA">MBA</option>
+                            <option value="B.Pharm">B.Pharm</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Target Attendance %</label>
+                        <input type="number" id="input-target" min="50" max="100" value="75" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 font-medium">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs py-3 rounded-2xl shadow-md shadow-indigo-200 transition-all duration-200 active:scale-95">
+                    Launch My Smart Dashboard →
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="sticky top-0 z-50 glass-pastel-nav shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- University Identity -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-400 to-pink-300 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-indigo-900 via-indigo-700 to-purple-800 bg-clip-text text-transparent">CGC UNIVERSITY</span>
+                            <span class="px-2.5 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-full">SMART AI PORTAL</span>
+                        </div>
+                        <p class="text-xs text-slate-500 hidden sm:block">Official Student Assistance & Campus Services Platform</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs (Desktop) -->
+                <nav class="hidden md:flex space-x-1 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/80 shadow-inner">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 text-xs font-bold rounded-xl text-indigo-900 bg-white shadow-sm transition-all duration-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-500"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('assistant')" id="nav-assistant" class="nav-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:text-indigo-900 hover:bg-white/60 transition-all duration-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-robot text-purple-400"></i>
+                        <span>AI Assistant</span>
+                    </button>
+                    <button onclick="switchTab('navigator')" id="nav-navigator" class="nav-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:text-indigo-900 hover:bg-white/60 transition-all duration-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-map-location-dot text-sky-400"></i>
+                        <span>Campus Map</span>
+                    </button>
+                    <button onclick="switchTab('academics')" id="nav-academics" class="nav-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:text-indigo-900 hover:bg-white/60 transition-all duration-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-book-open text-emerald-500"></i>
+                        <span>Academics & Tools</span>
+                    </button>
+                </nav>
+
+                <!-- Role Switcher & Menu -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="openOnboardingModal()" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-pen"></i>
+                        <span class="hidden sm:inline">Edit Profile</span>
+                    </button>
+
+                    <div class="bg-slate-100/90 border border-slate-200 p-1 rounded-xl flex items-center text-xs shadow-inner">
+                        <button id="role-student-btn" onclick="setRole('student')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-900 bg-white shadow-sm transition-all">Student</button>
+                        <button id="role-faculty-btn" onclick="setRole('faculty')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-indigo-900 transition-all">Faculty</button>
+                    </div>
+
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl text-slate-600 hover:text-indigo-900 hover:bg-white/80">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white/95 px-4 pt-2 pb-4 space-y-1.5 shadow-lg">
+            <button onclick="switchTab('dashboard'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-indigo-900 bg-indigo-50 flex items-center space-x-3">
+                <i class="fa-solid fa-chart-pie text-indigo-500"></i>
+                <span>Student Dashboard</span>
+            </button>
+            <button onclick="switchTab('assistant'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center space-x-3">
+                <i class="fa-solid fa-robot text-purple-500"></i>
+                <span>Campus AI Assistant</span>
+            </button>
+            <button onclick="switchTab('navigator'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center space-x-3">
+                <i class="fa-solid fa-map-location-dot text-sky-500"></i>
+                <span>Interactive Campus Map</span>
+            </button>
+            <button onclick="switchTab('academics'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center space-x-3">
+                <i class="fa-solid fa-book-open text-emerald-500"></i>
+                <span>Academics & Schedule</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Student Profile & Status Summary Card -->
+    <section class="border-b border-slate-200/60 bg-white/40 backdrop-blur-md z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                
+                <!-- Active User Profile Card -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-300 via-purple-300 to-pink-200 p-0.5 shadow-sm">
+                            <div class="w-full h-full rounded-2xl bg-white flex items-center justify-center font-bold text-lg text-indigo-700 uppercase" id="profile-initials">
+                                --
+                            </div>
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white shadow-xs"></span>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h2 class="font-bold text-sm text-slate-800" id="profile-name">Loading...</h2>
+                            <span class="px-2.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full" id="profile-role-badge">Verified Student</span>
+                        </div>
+                        <p class="text-xs text-slate-500 flex items-center space-x-2 mt-0.5">
+                            <span>Roll No: <strong class="text-slate-700 font-mono" id="profile-roll">--</strong></span>
+                            <span>•</span>
+                            <span id="profile-dept">--</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Academic Highlights Pills -->
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto text-xs">
+                    <div class="flex-1 lg:flex-none glass-pastel-card px-4 py-2.5 rounded-2xl flex items-center justify-between space-x-4 border-l-4 border-indigo-400">
+                        <span class="text-slate-500 font-medium">Target Attendance</span>
+                        <span class="font-extrabold font-mono text-indigo-900 text-sm" id="profile-target-display">75%</span>
+                    </div>
+                    <div class="flex-1 lg:flex-none glass-pastel-card px-4 py-2.5 rounded-2xl flex items-center justify-between space-x-4 border-l-4 border-emerald-400">
+                        <span class="text-slate-500 font-medium">Attendance</span>
+                        <span class="font-extrabold font-mono text-emerald-700 text-sm" id="profile-attendance-display">--</span>
+                    </div>
+                    <div class="flex-1 lg:flex-none glass-pastel-card px-4 py-2.5 rounded-2xl flex items-center justify-between space-x-4 border-l-4 border-amber-400">
+                        <span class="text-slate-500 font-medium">Fee Clearance</span>
+                        <span class="font-extrabold font-mono text-amber-700 text-sm">Clear (₹0 Dues)</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 z-10 flex flex-col">
+
+        <!-- TAB 1: DASHBOARD OVERVIEW -->
+        <section id="tab-dashboard" class="tab-content flex flex-col space-y-6">
+            
+            <!-- Quick AI Banner Prompt -->
+            <div class="glass-pastel-card rounded-3xl p-6 relative overflow-hidden bg-gradient-to-r from-indigo-100/90 via-purple-50/80 to-pink-100/70 border border-indigo-200/60 shadow-md">
+                <div class="absolute -right-12 -bottom-12 w-56 h-56 bg-indigo-300/30 rounded-full blur-2xl"></div>
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
+                    <div class="space-y-1.5">
+                        <div class="flex items-center space-x-2 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
+                            <span>Smart Campus AI Assistant</span>
+                        </div>
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-indigo-950">How can I help you navigate CGC University today?</h1>
+                        <p class="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                            Get instant help with mid-term exams, syllabus downloads, library timing, hostel gate curfews, or finding building directions.
+                        </p>
+                    </div>
+                    <button onclick="switchTab('assistant')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-md shadow-indigo-200 hover:shadow-indigo-300 flex items-center justify-center space-x-2 shrink-0 active:scale-95">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Open AI Chatbot</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid Layout: Notifications Feed & Campus Events -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Real-Time Notification Stream -->
+                <div class="lg:col-span-2 glass-pastel-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Campus Announcements</h3>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-mono">Real-time Stream</span>
+                        </div>
+
+                        <div class="space-y-3" id="notifications-list">
+                            
+                            <div class="p-4 rounded-2xl bg-white/80 border border-slate-200/80 hover:border-indigo-300 transition-all duration-200 flex items-start space-x-3.5 shadow-xs">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-file-signature text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold text-slate-800">Mid-Term Examination Schedule</h4>
+                                        <span class="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2.5 py-0.5 rounded-full">Exam Cell</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mt-1">Mid-term datesheet for B.Tech & BCA 5th semester is uploaded. Examinations start March 18th.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-white/80 border border-slate-200/80 hover:border-emerald-300 transition-all duration-200 flex items-start space-x-3.5 shadow-xs">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-briefcase text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold text-slate-800">Placement Drive: Microsoft & Amazon</h4>
+                                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">Placement Cell</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mt-1">Shortlisted candidates for Technical Round 2 report to Central Auditorium by 09:30 AM.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-white/80 border border-slate-200/80 hover:border-amber-300 transition-all duration-200 flex items-start space-x-3.5 shadow-xs">
+                                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-clock text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold text-slate-800">Central Library Extended Hours</h4>
+                                        <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full">Central Library</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mt-1">Reading hall hours extended till 11:00 PM starting next Monday for mid-term preparations.</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-500">
+                        <span>Showing top 3 active notices</span>
+                        <button onclick="switchTab('assistant'); sendQuickQuery('Show all university notices')" class="text-indigo-600 hover:text-indigo-800 font-bold transition">Ask AI Assistant →</button>
+                    </div>
+                </div>
+
+                <!-- Upcoming Campus Events Card -->
+                <div class="glass-pastel-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                                <i class="fa-solid fa-calendar-check text-purple-500"></i>
+                                <span>Upcoming Fests & Events</span>
+                            </h3>
+                        </div>
+
+                        <div class="space-y-3.5">
+                            <div class="p-4 rounded-2xl bg-white/80 border border-slate-200/80 space-y-2 shadow-xs">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Annual Tech Fest</span>
+                                        <h4 class="text-xs font-bold text-slate-800">TechInvent 2026</h4>
+                                    </div>
+                                    <span class="text-[10px] font-mono text-purple-800 bg-purple-100 px-2.5 py-1 rounded-full font-bold">March 25-26</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600">Robotics competition, AI hackathons, and guest keynote speakers.</p>
+                                <button onclick="toggleEventRegister(this)" class="w-full text-center py-2 rounded-xl text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200 hover:bg-purple-600 hover:text-white transition-all duration-200 shadow-xs">
+                                    Register Now
+                                </button>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-white/80 border border-slate-200/80 space-y-2 shadow-xs">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">Cultural Night</span>
+                                        <h4 class="text-xs font-bold text-slate-800">Parivartan Fest 2026</h4>
+                                    </div>
+                                    <span class="text-[10px] font-mono text-sky-800 bg-sky-100 px-2.5 py-1 rounded-full font-bold">April 10</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600">Inter-college music band battle & celebrity night performance.</p>
+                                <button onclick="toggleEventRegister(this)" class="w-full text-center py-2 rounded-xl text-xs font-bold bg-sky-100 text-sky-700 border border-sky-200 hover:bg-sky-600 hover:text-white transition-all duration-200 shadow-xs">
+                                    Get Entry Pass
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TAB 2: AI ASSISTANT CHATBOT -->
+        <section id="tab-assistant" class="tab-content hidden flex-1 flex flex-col lg:flex-row gap-6 h-full min-h-[580px]">
+            
+            <!-- Left Sidebar: Quick Prompts & Helplines -->
+            <div class="w-full lg:w-80 flex flex-col gap-4 shrink-0">
+                <div class="glass-pastel-card p-5 rounded-3xl">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center space-x-2">
+                        <i class="fa-solid fa-sparkles text-purple-500"></i>
+                        <span>Instant Query Chips</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-3.5 leading-relaxed">Click any topic to trigger immediate response:</p>
+                    
+                    <div class="space-y-2">
+                        <button onclick="sendQuickQuery('What is the eligibility for B.Tech Computer Science admissions?')" class="w-full text-left p-3 rounded-2xl bg-white/90 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200/80 text-xs font-medium text-slate-700 transition-all duration-200 flex items-center space-x-2.5 shadow-xs">
+                            <i class="fa-solid fa-graduation-cap text-indigo-500"></i>
+                            <span>B.Tech CS Admissions</span>
+                        </button>
+
+                        <button onclick="sendQuickQuery('What are the hostel fee structure and gate timings?')" class="w-full text-left p-3 rounded-2xl bg-white/90 hover:bg-rose-50 hover:border-rose-200 border border-slate-200/80 text-xs font-medium text-slate-700 transition-all duration-200 flex items-center space-x-2.5 shadow-xs">
+                            <i class="fa-solid fa-building-user text-rose-500"></i>
+                            <span>Hostel Fees & Gate Rules</span>
+                        </button>
+
+                        <button onclick="sendQuickQuery('Where is the Central Library located and what are timings?')" class="w-full text-left p-3 rounded-2xl bg-white/90 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 text-xs font-medium text-slate-700 transition-all duration-200 flex items-center space-x-2.5 shadow-xs">
+                            <i class="fa-solid fa-book text-purple-500"></i>
+                            <span>Library Location & Hours</span>
+                        </button>
+
+                        <button onclick="sendQuickQuery('How do I apply for mid-term examination re-evaluation?')" class="w-full text-left p-3 rounded-2xl bg-white/90 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200/80 text-xs font-medium text-slate-700 transition-all duration-200 flex items-center space-x-2.5 shadow-xs">
+                            <i class="fa-solid fa-pen-to-square text-emerald-500"></i>
+                            <span>Exam Re-evaluation Procedure</span>
+                        </button>
+
+                        <button onclick="sendQuickQuery('What are the highest placement packages in CGC for 2025-2026?')" class="w-full text-left p-3 rounded-2xl bg-white/90 hover:bg-amber-50 hover:border-amber-200 border border-slate-200/80 text-xs font-medium text-slate-700 transition-all duration-200 flex items-center space-x-2.5 shadow-xs">
+                            <i class="fa-solid fa-trophy text-amber-500"></i>
+                            <span>Placement Records & Highest CTC</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Helplines Card -->
+                <div class="glass-pastel-card p-5 rounded-3xl text-xs space-y-3">
+                    <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-phone-volume text-rose-500"></i>
+                        <span>CGC Helplines</span>
+                    </h3>
+                    <div class="flex justify-between items-center p-2.5 rounded-xl bg-white/80 border border-slate-200/80">
+                        <span class="text-slate-600">Admissions Desk</span>
+                        <span class="text-indigo-700 font-mono font-bold">+91 1800-200-3575</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2.5 rounded-xl bg-white/80 border border-slate-200/80">
+                        <span class="text-slate-600">Hostel Warden</span>
+                        <span class="text-indigo-700 font-mono font-bold">+91 98765-43210</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2.5 rounded-xl bg-white/80 border border-slate-200/80">
+                        <span class="text-slate-600">Campus Clinic</span>
+                        <span class="text-emerald-700 font-mono font-bold">Ext. 108</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Engine -->
+            <div class="flex-1 glass-pastel-card rounded-3xl flex flex-col h-[620px] lg:h-auto overflow-hidden shadow-sm border border-indigo-100">
+                
+                <!-- Chat Window Header -->
+                <div class="px-6 py-4 bg-white/90 border-b border-slate-200/80 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-400 via-purple-300 to-pink-300 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                                AI
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white"></span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800">Smart Campus AI Assistant</h3>
+                            <p class="text-[11px] text-slate-500">Ask about courses, syllabus, map directions, exams & rules</p>
+                        </div>
+                    </div>
+                    <button onclick="clearChat()" class="text-xs font-semibold text-slate-500 hover:text-rose-600 transition flex items-center space-x-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-100">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Reset Chat</span>
+                    </button>
+                </div>
+
+                <!-- Chat Stream -->
+                <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4">
+                    
+                    <div class="flex items-start space-x-3 max-w-2xl">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0 mt-1">
+                            <i class="fa-solid fa-robot text-xs"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="bg-white border border-slate-200/90 text-slate-800 p-4 rounded-2xl rounded-tl-none text-sm leading-relaxed shadow-xs">
+                                <p class="font-bold text-indigo-950 mb-1">Welcome to CGC University Smart Portal! 🏫</p>
+                                <p>I am trained on official CGC course details, campus building directions, exam guidelines, and student services. How can I help you today?</p>
+                            </div>
+                            <span class="text-[10px] text-slate-400 pl-1">System ready</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Chat Typing Indicator (Hidden by default) -->
+                <div id="typing-indicator" class="hidden px-6 py-2 flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xs">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 px-4 py-2 rounded-2xl flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full typing-dot"></span>
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full typing-dot"></span>
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full typing-dot"></span>
+                    </div>
+                </div>
+
+                <!-- Input Form -->
+                <div class="p-4 bg-white/90 border-t border-slate-200/80">
+                    <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex items-center space-x-2">
+                        <button type="button" onclick="triggerVoiceInput()" class="p-3 rounded-2xl bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition" title="Voice Search">
+                            <i class="fa-solid fa-microphone text-sm"></i>
+                        </button>
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="user-input" 
+                                placeholder="Type your query here (e.g. 'Where is Block 3?', 'Hostel fee structure')..." 
+                                class="w-full bg-slate-50/80 border border-slate-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-800 placeholder-slate-400 text-sm rounded-2xl px-4 py-3.5 focus:outline-none transition-all duration-200"
+                                autocomplete="off"
+                            >
+                        </div>
+                        <button 
+                            type="submit" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-3.5 rounded-2xl transition-all duration-200 shadow-md shadow-indigo-200 flex items-center justify-center space-x-2 shrink-0 active:scale-95"
+                        >
+                            <span>Send</span>
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TAB 3: CAMPUS MAP NAVIGATOR -->
+        <section id="tab-navigator" class="tab-content hidden flex-1 flex-col space-y-6">
+            
+            <div class="glass-pastel-card p-5 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-map-location-dot text-sky-500"></i>
+                        <span>CGC Vector Map Navigator</span>
+                    </h2>
+                    <p class="text-xs text-slate-500">Click any pastel building node to view floor plans, HOD desk, and operating hours</p>
+                </div>
+                
+                <div class="flex flex-wrap gap-2" id="map-filters">
+                    <button onclick="filterMap('all')" class="filter-btn active-filter px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition-all">All Buildings</button>
+                    <button onclick="filterMap('academic')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">Academic Blocks</button>
+                    <button onclick="filterMap('hostel')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">Hostels</button>
+                    <button onclick="filterMap('amenity')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">Food & Sports</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+                
+                <!-- SVG Canvas Map -->
+                <div class="lg:col-span-2 glass-pastel-card p-5 rounded-3xl flex flex-col h-[480px]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Campus Layout Schematic</span>
+                        <span class="text-xs text-indigo-600 font-semibold"><i class="fa-solid fa-hand-pointer mr-1"></i> Clickable Nodes</span>
+                    </div>
+
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50/40 via-purple-50/30 to-pink-50/30 rounded-2xl border border-slate-200/80 relative overflow-hidden flex items-center justify-center p-4 shadow-inner">
+                        <svg class="w-full h-full max-h-[400px]" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(99, 102, 241, 0.06)" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#map-grid)" />
+
+                            <!-- Roads & Connectivity Lines -->
+                            <path d="M 100 250 H 700 M 400 80 V 420 M 250 150 V 350 M 550 150 V 350" stroke="#CBD5E1" stroke-width="26" stroke-linecap="round"/>
+                            <path d="M 100 250 H 700 M 400 80 V 420 M 250 150 V 350 M 550 150 V 350" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="6 6"/>
+
+                            <!-- Green Lawn Zone -->
+                            <rect x="330" y="200" width="140" height="100" rx="20" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="2"/>
+                            <text x="400" y="255" text-anchor="middle" fill="#047857" font-size="12" font-weight="700">Central Lawn & Garden</text>
+
+                            <!-- Node 1: Admin Block -->
+                            <g class="map-node building-node cursor-pointer" data-category="academic" onclick="selectBuilding('admin')">
+                                <rect x="320" y="40" width="160" height="70" rx="14" fill="#EEF2FF" stroke="#818CF8" stroke-width="2"/>
+                                <text x="400" y="72" text-anchor="middle" fill="#312E81" font-size="13" font-weight="bold">Admin Block 1</text>
+                                <text x="400" y="90" text-anchor="middle" fill="#4338CA" font-size="10">VC Office & Registrar</text>
+                            </g>
+
+                            <!-- Node 2: Block 3 CSE -->
+                            <g class="map-node building-node cursor-pointer" data-category="academic" onclick="selectBuilding('cse')">
+                                <rect x="120" y="100" width="140" height="90" rx="14" fill="#E0F2FE" stroke="#38BDF8" stroke-width="2"/>
+                                <text x="190" y="140" text-anchor="middle" fill="#0C4A6E" font-size="13" font-weight="bold">Block 3: CSE & IT</text>
+                                <text x="190" y="158" text-anchor="middle" fill="#0284C7" font-size="10">AI & Robotics Labs</text>
+                            </g>
+
+                            <!-- Node 3: Central Library -->
+                            <g class="map-node building-node cursor-pointer" data-category="academic" onclick="selectBuilding('library')">
+                                <rect x="540" y="100" width="140" height="90" rx="14" fill="#F3E8FF" stroke="#C084FC" stroke-width="2"/>
+                                <text x="610" y="140" text-anchor="middle" fill="#581C87" font-size="13" font-weight="bold">Central Library</text>
+                                <text x="610" y="158" text-anchor="middle" fill="#7E22CE" font-size="10">Digital Media Hub</text>
+                            </g>
+
+                            <!-- Node 4: Food Court -->
+                            <g class="map-node building-node cursor-pointer" data-category="amenity" onclick="selectBuilding('cafe')">
+                                <rect x="120" y="310" width="140" height="80" rx="14" fill="#FFFBEB" stroke="#FBBF24" stroke-width="2"/>
+                                <text x="190" y="348" text-anchor="middle" fill="#78350F" font-size="13" font-weight="bold">Food Court & Cafe</text>
+                                <text x="190" y="366" text-anchor="middle" fill="#B45309" font-size="10">Student Dining</text>
+                            </g>
+
+                            <!-- Node 5: Hostels -->
+                            <g class="map-node building-node cursor-pointer" data-category="hostel" onclick="selectBuilding('hostel')">
+                                <rect x="540" y="310" width="140" height="80" rx="14" fill="#FDF2F8" stroke="#F472B6" stroke-width="2"/>
+                                <text x="610" y="348" text-anchor="middle" fill="#831843" font-size="13" font-weight="bold">Hostel Residency</text>
+                                <text x="610" y="366" text-anchor="middle" fill="#BE185D" font-size="10">Boys & Girls Residency</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Building Details Card -->
+                <div class="glass-pastel-card p-6 rounded-3xl flex flex-col justify-between">
+                    <div id="building-details">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3 border border-indigo-200 shadow-xs" id="bldg-icon">
+                            <i class="fa-solid fa-building-columns"></i>
+                        </div>
+                        <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 rounded-full border border-indigo-200" id="bldg-tag">Admin Zone</span>
+                        <h3 class="text-lg font-bold text-slate-800 mt-2" id="bldg-title">Main Administration Block 1</h3>
+                        <p class="text-xs text-slate-600 mt-1.5 leading-relaxed" id="bldg-desc">
+                            Houses the Vice Chancellor Office, Registrar Desk, Finance & Fee Accounts Department, and Admissions Guidance Wing.
+                        </p>
+                        
+                        <hr class="border-slate-200 my-4">
+
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <i class="fa-solid fa-clock text-indigo-500 text-xs mt-1"></i>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-700">Operating Hours</div>
+                                    <div class="text-xs text-slate-500" id="bldg-hours">09:00 AM – 05:00 PM (Mon to Sat)</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fa-solid fa-user-tie text-indigo-500 text-xs mt-1"></i>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-700">Key Officer In-Charge</div>
+                                    <div class="text-xs text-slate-500" id="bldg-officer">Dr. R. K. Sharma (Registrar)</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fa-solid fa-layer-group text-indigo-500 text-xs mt-1"></i>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-700">Key Services</div>
+                                    <div class="text-xs text-slate-500" id="bldg-facilities">Fee Desk, ID Cards, Migration Window</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="askAIAboutBuilding()" class="w-full mt-6 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-3.5 rounded-2xl border border-indigo-200 transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Ask AI for Directions to Here</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TAB 4: ACADEMICS & TOOLS HUB -->
+        <section id="tab-academics" class="tab-content hidden flex-1 flex-col space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Attendance 75% Calculator -->
+                <div class="glass-pastel-card p-6 rounded-3xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-lg border border-purple-200 shadow-xs">
+                                <i class="fa-solid fa-calculator"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">75% Attendance Goal Calculator</h3>
+                                <p class="text-xs text-slate-500">Calculate how many lectures you can attend or skip</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Total Conducted Lectures</label>
+                                <input type="number" id="total-conducted" value="40" min="1" oninput="calculateAttendance()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-2xl px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Lectures Attended</label>
+                                <input type="number" id="total-attended" value="33" min="0" oninput="calculateAttendance()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-2xl px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Target Minimum Requirement (%)</label>
+                                <input type="number" id="target-percentage" value="75" min="50" max="100" oninput="calculateAttendance()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-2xl px-4 py-2.5 text-sm focus:border-purple-400 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Progress Bar -->
+                    <div class="mt-5">
+                        <div class="flex justify-between items-center text-xs font-bold mb-1.5">
+                            <span class="text-slate-600">Current Level</span>
+                            <span id="progress-percentage-text" class="text-emerald-700">82.5%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden p-0.5">
+                            <div id="progress-bar-fill" class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-500" style="width: 82.5%"></div>
+                        </div>
+                    </div>
+
+                    <div id="attendance-result" class="mt-4 p-4 rounded-2xl bg-white/90 border border-slate-200/80 shadow-xs">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs text-slate-500">Calculation Result:</span>
+                            <span class="text-xs font-extrabold text-emerald-700 font-mono" id="current-pct">82.5%</span>
+                        </div>
+                        <p class="text-xs text-slate-700" id="attendance-msg">
+                            ✅ You are above the target requirement!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Weekly Timetable Matrix -->
+                <div class="glass-pastel-card p-6 rounded-3xl flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-lg border border-sky-200 shadow-xs">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Class Schedule Matrix</h3>
+                                <p class="text-xs text-slate-500">Filter timetable by day and branch</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Select Day</label>
+                            <select id="day-select" onchange="renderTimetable()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-400 font-medium">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Select Department</label>
+                            <select id="branch-select" onchange="renderTimetable()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-400 font-medium">
+                                <option value="BTECH_CSE">B.Tech CSE - 5th Sem</option>
+                                <option value="BCA">BCA - 3rd Sem</option>
+                                <option value="MBA">MBA - 1st Sem</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto space-y-2.5 max-h-[300px] pr-1" id="timetable-list">
+                        <!-- Dynamic timetable items -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Downloadable Resources Center -->
+            <div class="glass-pastel-card p-6 rounded-3xl">
+                <h3 class="text-sm font-bold text-slate-800 mb-3.5 flex items-center space-x-2">
+                    <i class="fa-solid fa-file-arrow-down text-indigo-500"></i>
+                    <span>Academic Resource Vault</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-2xl bg-white/90 border border-slate-200/80 flex items-center justify-between shadow-xs">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">B.Tech CSE Sem 5 Syllabus PDF</h4>
+                            <p class="text-[10px] text-slate-500">Official Curriculum 2025-2026</p>
+                        </div>
+                        <button onclick="downloadResource('Syllabus_BTech_CSE.pdf')" class="text-indigo-600 p-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 hover:text-white transition-all">
+                            <i class="fa-solid fa-download text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/90 border border-slate-200/80 flex items-center justify-between shadow-xs">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Data Structures PYQs (2021-2025)</h4>
+                            <p class="text-[10px] text-slate-500">Previous Year Question Bank</p>
+                        </div>
+                        <button onclick="downloadResource('PYQ_DataStructures.pdf')" class="text-indigo-600 p-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 hover:text-white transition-all">
+                            <i class="fa-solid fa-download text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/90 border border-slate-200/80 flex items-center justify-between shadow-xs">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Mid-Sem Re-evaluation Form</h4>
+                            <p class="text-[10px] text-slate-500">Exam Cell Official Form</p>
+                        </div>
+                        <button onclick="downloadResource('Exam_Reevaluation_Form.pdf')" class="text-indigo-600 p-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 hover:text-white transition-all">
+                            <i class="fa-solid fa-download text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-pastel-nav mt-auto py-4 border-t border-slate-200/80 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                © 2026 <strong>CGC University Smart Campus AI Assistant Project</strong>. Academic Presentation.
+            </div>
+            <div class="flex space-x-4">
+                <a href="https://www.cgcuniversity.in/" target="_blank" class="hover:text-indigo-600 font-semibold transition">Official CGC Website</a>
+                <span>•</span>
+                <a href="#" onclick="switchTab('assistant')" class="hover:text-indigo-600 font-semibold transition">AI Support Hub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Application Logic -->
+    <script>
+        // CGC Knowledge Base for AI Responses
+        const cgcKnowledgeBase = [
+            {
+                keywords: ["admission", "b.tech", "eligibility", "apply", "course", "fees"],
+                response: "For B.Tech CSE admissions at CGC University: Candidates must have passed 10+2 with Physics, Mathematics, and Chemistry/CS with a minimum of 50% aggregate marks. Applications can be submitted online via the official portal or directly at Block 1 (Admin Wing)."
+            },
+            {
+                keywords: ["hostel", "curfew", "gate", "fee", "residence", "mess"],
+                response: "CGC Hostels feature 24/7 security, AC & Non-AC rooms, Wi-Fi, and integrated mess facilities. Hostel gate curfew is strictly 08:30 PM for all residents. Annual hostel fees range from ₹85,000 to ₹1,20,000 depending on occupancy."
+            },
+            {
+                keywords: ["library", "books", "timing", "hours", "read"],
+                response: "The Central Library is located in the Learning Resource Block. Standard operating hours are 08:00 AM to 08:00 PM (Monday to Saturday). During mid-term and end-term examinations, reading halls remain open extended hours till 11:00 PM."
+            },
+            {
+                keywords: ["exam", "re-evaluation", "re-appear", "marks", "datesheet", "dates"],
+                response: "Mid-Term Examinations for the 5th semester begin on March 18th. For re-evaluation or answer script inspection, students must fill the Re-evaluation Form in the Examination Cell (Block 1) within 7 days of result declaration."
+            },
+            {
+                keywords: ["placement", "package", "highest", "ctc", "company", "companies", "microsoft", "amazon"],
+                response: "CGC University has achieved 8,500+ job offers with top recruiting partners including Microsoft, Amazon, Deloitte, TCS, and Wipro. The highest national CTC offered is ₹45.5 LPA, with an average package of ₹6.8 LPA for engineering streams."
+            }
+        ];
+
+        // Building Details Data
+        const buildingData = {
+            admin: {
+                title: "Main Administration Block 1",
+                tag: "Admin Zone",
+                icon: "fa-building-columns",
+                desc: "Houses the Vice Chancellor Office, Registrar Desk, Finance & Fee Accounts Department, and Admissions Guidance Wing.",
+                hours: "09:00 AM – 05:00 PM (Mon to Sat)",
+                officer: "Dr. R. K. Sharma (Registrar)",
+                facilities: "Fee Desk, ID Cards, Migration Window"
+            },
+            cse: {
+                title: "Block 3: Computer Science & IT",
+                tag: "Academic Zone",
+                icon: "fa-laptop-code",
+                desc: "Equipped with advanced AI & Data Science labs, Robotics research center, Software Engineering studios, and HOD offices.",
+                hours: "08:30 AM – 04:30 PM (Mon to Fri)",
+                officer: "Dr. S. N. Mehta (HOD - CSE)",
+                facilities: "NVIDIA AI Lab, High-Performance Compute Cluster, Seminar Halls"
+            },
+            library: {
+                title: "Central Library & Knowledge Hub",
+                tag: "Resource Zone",
+                icon: "fa-book-bookmark",
+                desc: "Multi-story resource library holding over 100,000+ volumes, IEEE digital access journals, quiet study pods, and e-learning zones.",
+                hours: "08:00 AM – 08:00 PM (Extended till 11 PM during exams)",
+                officer: "Mr. V. P. Singh (Chief Librarian)",
+                facilities: "E-Resource Kiosks, Digital Catalog, Study Rooms"
+            },
+            cafe: {
+                title: "Central Food Court & Cafeteria",
+                tag: "Dining & Social",
+                icon: "fa-utensils",
+                desc: "Features multiple multi-cuisine counters, healthy juice bars, Nescafe outlets, and spacious indoor/outdoor seating for students.",
+                hours: "08:00 AM – 09:30 PM Daily",
+                officer: "Campus Refreshment Committee",
+                facilities: "Digital Kiosk Orders, Fresh Dining Options, Juice Corner"
+            },
+            hostel: {
+                title: "Residential Hostels Complex",
+                tag: "Student Residence",
+                icon: "fa-bed",
+                desc: "Secure multi-story accommodations for boys and girls with AC rooms, study rooms, recreation lounges, and integrated mess dining.",
+                hours: "Gate Curfew: 08:30 PM Sharp",
+                officer: "Prof. Ankit Verma (Chief Warden)",
+                facilities: "Mess Hall, Laundry Services, Gym, Outdoor Sports Ground"
+            }
+        };
+
+        // Timetable Data
+        const timetableData = {
+            BTECH_CSE: {
+                Monday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "Artificial Intelligence", room: "Lab 302", teacher: "Dr. S. N. Mehta" },
+                    { time: "10:00 AM - 11:00 AM", subject: "Compiler Design", room: "LT-104", teacher: "Prof. Neha Gupta" },
+                    { time: "11:15 AM - 01:15 PM", subject: "Web Development Lab", room: "Lab 305", teacher: "Er. Rahul Malhotra" },
+                    { time: "02:00 PM - 03:00 PM", subject: "Database Management Systems", room: "LT-104", teacher: "Dr. P. Sharma" }
+                ],
+                Tuesday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "Computer Networks", room: "LT-102", teacher: "Prof. Amit Verma" },
+                    { time: "10:00 AM - 11:00 AM", subject: "Software Engineering", room: "LT-102", teacher: "Dr. R. K. Singh" },
+                    { time: "11:15 AM - 01:15 PM", subject: "AI & ML Practical Lab", room: "Lab 308", teacher: "Dr. S. N. Mehta" },
+                    { time: "02:00 PM - 03:00 PM", subject: "Cyber Security Fundamentals", room: "LT-105", teacher: "Er. Simran Kaur" }
+                ],
+                Wednesday: [
+                    { time: "09:00 AM - 11:00 AM", subject: "Full Stack Lab", room: "Lab 301", teacher: "Er. Rahul Malhotra" },
+                    { time: "11:15 AM - 12:15 PM", subject: "Compiler Design", room: "LT-104", teacher: "Prof. Neha Gupta" },
+                    { time: "01:30 PM - 02:30 PM", subject: "Aptitude & Soft Skills", room: "Auditorium B", teacher: "CDC Trainer" }
+                ],
+                Thursday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "Database Management Systems", room: "LT-104", teacher: "Dr. P. Sharma" },
+                    { time: "10:00 AM - 11:00 AM", subject: "Computer Networks", room: "LT-104", teacher: "Prof. Amit Verma" },
+                    { time: "11:15 AM - 01:15 PM", subject: "Minor Project Work", room: "Lab 306", teacher: "Department Mentor" }
+                ],
+                Friday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "Artificial Intelligence", room: "LT-104", teacher: "Dr. S. N. Mehta" },
+                    { time: "10:00 AM - 11:00 AM", subject: "Software Engineering", room: "LT-104", teacher: "Dr. R. K. Singh" },
+                    { time: "11:15 AM - 01:15 PM", subject: "Sports & Club Activities", room: "Sports Complex", teacher: "Sports Officer" }
+                ]
+            },
+            BCA: {
+                Monday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "C++ Programming", room: "Room 201", teacher: "Prof. Deepa Roy" },
+                    { time: "10:00 AM - 11:00 AM", subject: "Data Structures", room: "Room 201", teacher: "Er. Vikas Kumar" }
+                ],
+                Tuesday: [
+                    { time: "09:00 AM - 11:00 AM", subject: "C++ Programming Lab", room: "Lab 102", teacher: "Prof. Deepa Roy" }
+                ],
+                Wednesday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "Operating Systems", room: "Room 201", teacher: "Dr. M. K. Jain" }
+                ],
+                Thursday: [
+                    { time: "10:00 AM - 12:00 PM", subject: "Web Technologies Lab", room: "Lab 104", teacher: "Er. Pooja Sharma" }
+                ],
+                Friday: [
+                    { time: "09:00 AM - 10:00 AM", subject: "Computer Architecture", room: "Room 201", teacher: "Prof. Deepa Roy" }
+                ]
+            },
+            MBA: {
+                Monday: [
+                    { time: "09:30 AM - 11:00 AM", subject: "Marketing Management", room: "MB-101", teacher: "Dr. Swati Kapoor" },
+                    { time: "11:15 AM - 12:45 PM", subject: "Financial Accounting", room: "MB-101", teacher: "Prof. G. S. Bedi" }
+                ],
+                Tuesday: [
+                    { time: "09:30 AM - 11:00 AM", subject: "Organizational Behavior", room: "MB-102", teacher: "Dr. Swati Kapoor" }
+                ],
+                Wednesday: [
+                    { time: "09:30 AM - 11:00 AM", subject: "Managerial Economics", room: "MB-101", teacher: "Prof. G. S. Bedi" }
+                ],
+                Thursday: [
+                    { time: "09:30 AM - 11:00 AM", subject: "Business Statistics", room: "MB-101", teacher: "Dr. H. P. Singh" }
+                ],
+                Friday: [
+                    { time: "09:30 AM - 12:30 PM", subject: "Corporate Seminar & Case Studies", room: "Auditorium A", teacher: "Visiting Faculty" }
+                ]
+            }
+        };
+
+        let currentStudentProfile = null;
+        let selectedBuildingKey = "admin";
+
+        // Onboarding Modal Handlers
+        function openOnboardingModal() {
+            const modal = document.getElementById('onboarding-modal');
+            modal.classList.remove('hidden');
+            if (currentStudentProfile) {
+                document.getElementById('input-name').value = currentStudentProfile.name || '';
+                document.getElementById('input-roll').value = currentStudentProfile.roll || '';
+                document.getElementById('input-dept').value = currentStudentProfile.dept || 'B.Tech CSE';
+                document.getElementById('input-sem').value = currentStudentProfile.sem || '5th Sem';
+                document.getElementById('input-target').value = currentStudentProfile.target || 75;
+            }
+        }
+
+        function handleOnboardingSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('input-name').value.trim();
+            const roll = document.getElementById('input-roll').value.trim();
+            const dept = document.getElementById('input-dept').value;
+            const sem = document.getElementById('input-sem').value;
+            const target = parseInt(document.getElementById('input-target').value) || 75;
+
+            currentStudentProfile = { name, roll, dept, sem, target };
+            localStorage.setItem('cgc_student_profile', JSON.stringify(currentStudentProfile));
+
+            applyUserProfile();
+            document.getElementById('onboarding-modal').classList.add('hidden');
+        }
+
+        function applyUserProfile() {
+            if (!currentStudentProfile) return;
+
+            // Compute Initials
+            const words = currentStudentProfile.name.split(' ');
+            const initials = words.length > 1 ? (words[0][0] + words[1][0]) : words[0].substring(0,2);
+            
+            document.getElementById('profile-name').innerText = currentStudentProfile.name;
+            document.getElementById('profile-initials').innerText = initials.toUpperCase();
+            document.getElementById('profile-roll').innerText = currentStudentProfile.roll;
+            document.getElementById('profile-dept').innerText = `${currentStudentProfile.dept} (${currentStudentProfile.sem})`;
+            document.getElementById('profile-target-display').innerText = `${currentStudentProfile.target}%`;
+
+            // Sync with attendance calculator target input
+            const targetInput = document.getElementById('target-percentage');
+            if (targetInput) {
+                targetInput.value = currentStudentProfile.target;
+            }
+            calculateAttendance();
+        }
+
+        function loadUserProfile() {
+            const saved = localStorage.getItem('cgc_student_profile');
+            if (saved) {
+                try {
+                    currentStudentProfile = JSON.parse(saved);
+                    applyUserProfile();
+                    document.getElementById('onboarding-modal').classList.add('hidden');
+                } catch(e) {
+                    openOnboardingModal();
+                }
+            } else {
+                openOnboardingModal();
+            }
+        }
+
+        // Tab Switcher Logic
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'assistant', 'navigator', 'academics'];
+            tabs.forEach(tab => {
+                const contentEl = document.getElementById(`tab-${tab}`);
+                const navBtn = document.getElementById(`nav-${tab}`);
+                if (contentEl) {
+                    if (tab === tabId) {
+                        contentEl.classList.remove('hidden');
+                    } else {
+                        contentEl.classList.add('hidden');
+                    }
+                }
+                if (navBtn) {
+                    if (tab === tabId) {
+                        navBtn.className = "nav-btn px-4 py-2 text-xs font-bold rounded-xl text-indigo-900 bg-white shadow-sm transition-all duration-200 flex items-center space-x-2";
+                    } else {
+                        navBtn.className = "nav-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:text-indigo-900 hover:bg-white/60 transition-all duration-200 flex items-center space-x-2";
+                    }
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Role Switcher Logic
+        function setRole(role) {
+            const studentBtn = document.getElementById('role-student-btn');
+            const facultyBtn = document.getElementById('role-faculty-btn');
+            const badge = document.getElementById('profile-role-badge');
+
+            if (role === 'student') {
+                studentBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-900 bg-white shadow-sm transition-all";
+                facultyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-indigo-900 transition-all";
+                badge.className = "px-2.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full";
+                badge.innerText = "Verified Student";
+            } else {
+                facultyBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-900 bg-white shadow-sm transition-all";
+                studentBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-indigo-900 transition-all";
+                badge.className = "px-2.5 py-0.5 text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 rounded-full";
+                badge.innerText = "Faculty / Mentor";
+            }
+        }
+
+        // Chatbot Handlers
+        function appendUserMessage(text) {
+            const chatMessages = document.getElementById('chat-messages');
+            const msgHtml = `
+                <div class="flex items-start justify-end space-x-3">
+                    <div class="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-none text-sm leading-relaxed shadow-sm max-w-xl">
+                        <p>${escapeHtml(text)}</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-800 shrink-0 mt-1 font-bold text-xs">
+                        ME
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function appendBotMessage(text) {
+            const chatMessages = document.getElementById('chat-messages');
+            const msgHtml = `
+                <div class="flex items-start space-x-3 max-w-2xl">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0 mt-1">
+                        <i class="fa-solid fa-robot text-xs"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="bg-white border border-slate-200/90 text-slate-800 p-4 rounded-2xl rounded-tl-none text-sm leading-relaxed shadow-xs">
+                            <p>${text}</p>
+                        </div>
+                        <span class="text-[10px] text-slate-400 pl-1">CGC AI Assistant</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator(show) {
+            const indicator = document.getElementById('typing-indicator');
+            if (show) {
+                indicator.classList.remove('hidden');
+            } else {
+                indicator.classList.add('hidden');
+            }
+        }
+
+        function processBotQuery(userQuery) {
+            showTypingIndicator(true);
+
+            setTimeout(() => {
+                showTypingIndicator(false);
+                const queryLower = userQuery.toLowerCase();
+                let match = cgcKnowledgeBase.find(item => 
+                    item.keywords.some(keyword => queryLower.includes(keyword))
+                );
+
+                if (match) {
+                    appendBotMessage(match.response);
+                } else {
+                    appendBotMessage(`I am your CGC Smart Assistant! Regarding "<strong>${escapeHtml(userQuery)}</strong>": Please check the official CGC website (<a href="https://www.cgcuniversity.in/" target="_blank" class="text-indigo-600 underline font-semibold">cgcuniversity.in</a>) or visit Block 1 Admin Office for detailed guidance.`);
+                }
+            }, 600);
+        }
+
+        function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendUserMessage(text);
+            input.value = '';
+            processBotQuery(text);
+        }
+
+        function sendQuickQuery(queryText) {
+            switchTab('assistant');
+            appendUserMessage(queryText);
+            processBotQuery(queryText);
+        }
+
+        function clearChat() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `
+                <div class="flex items-start space-x-3 max-w-2xl">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0 mt-1">
+                        <i class="fa-solid fa-robot text-xs"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="bg-white border border-slate-200/90 text-slate-800 p-4 rounded-2xl rounded-tl-none text-sm leading-relaxed shadow-xs">
+                            <p class="font-bold text-indigo-950 mb-1">Welcome to CGC University Smart Portal! 🏫</p>
+                            <p>I am trained on official CGC course details, campus building directions, exam guidelines, and student services. How can I help you today?</p>
+                        </div>
+                        <span class="text-[10px] text-slate-400 pl-1">System ready</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function triggerVoiceInput() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.start();
+
+                recognition.onresult = function(event) {
+                    const speechText = event.results[0][0].transcript;
+                    document.getElementById('user-input').value = speechText;
+                };
+            } else {
+                alert("Voice search is not supported in this browser. Please type your query.");
+            }
+        }
+
+        // Campus Map Handlers
+        function selectBuilding(key) {
+            const data = buildingData[key];
+            if (!data) return;
+
+            selectedBuildingKey = key;
+            document.getElementById('bldg-title').innerText = data.title;
+            document.getElementById('bldg-tag').innerText = data.tag;
+            document.getElementById('bldg-desc').innerText = data.desc;
+            document.getElementById('bldg-hours').innerText = data.hours;
+            document.getElementById('bldg-officer').innerText = data.officer;
+            document.getElementById('bldg-facilities').innerText = data.facilities;
+            document.getElementById('bldg-icon').innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
+        }
+
+        function askAIAboutBuilding() {
+            const data = buildingData[selectedBuildingKey];
+            if (data) {
+                sendQuickQuery(`How do I reach ${data.title} and what services are available there?`);
+            }
+        }
+
+        function filterMap(category) {
+            const buttons = document.querySelectorAll('#map-filters .filter-btn');
+            buttons.forEach(btn => {
+                btn.className = "filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all";
+            });
+            event.target.className = "filter-btn active-filter px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition-all";
+
+            const nodes = document.querySelectorAll('.building-node');
+            nodes.forEach(node => {
+                const cat = node.getAttribute('data-category');
+                if (category === 'all' || cat === category) {
+                    node.style.opacity = '1';
+                } else {
+                    node.style.opacity = '0.35';
+                }
+            });
+        }
+
+        // Timetable Rendering Logic
+        function renderTimetable() {
+            const day = document.getElementById('day-select').value;
+            const branch = document.getElementById('branch-select').value;
+            const container = document.getElementById('timetable-list');
+
+            if (!container) return;
+
+            const schedule = (timetableData[branch] && timetableData[branch][day]) || [];
+
+            if (schedule.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-white/60 text-center text-xs text-slate-500">
+                        No classes scheduled for ${day}.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = schedule.map(item => `
+                <div class="p-3.5 rounded-2xl bg-white/90 border border-slate-200/80 shadow-xs flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold text-slate-800">${escapeHtml(item.subject)}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-sky-100 text-sky-800 rounded-md">${escapeHtml(item.room)}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Faculty: ${escapeHtml(item.teacher)}</div>
+                    </div>
+                    <span class="text-xs font-mono font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl shrink-0">
+                        ${escapeHtml(item.time)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Helpers & Event Actions
+        function toggleEventRegister(btn) {
+            if (btn.innerText.includes('Registered') || btn.innerText.includes('Pass Claimed')) {
+                btn.innerText = 'Register Now';
+                btn.className = "w-full text-center py-2 rounded-xl text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200 hover:bg-purple-600 hover:text-white transition-all duration-200 shadow-xs";
+            } else {
+                btn.innerText = '✓ Registered!';
+                btn.className = "w-full text-center py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition-all duration-200 shadow-xs";
+            }
+        }
+
+        function downloadResource(filename) {
+            alert(`Initiating download for ${filename}...`);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Attendance Goal Calculator Logic
+        function calculateAttendance() {
+            const conducted = parseInt(document.getElementById('total-conducted').value) || 0;
+            const attended = parseInt(document.getElementById('total-attended').value) || 0;
+            const target = parseInt(document.getElementById('target-percentage').value) || (currentStudentProfile ? currentStudentProfile.target : 75);
+
+            if (conducted <= 0 || attended < 0 || attended > conducted) {
+                document.getElementById('attendance-msg').innerHTML = "<span class='text-rose-600 font-bold'>Please enter valid class counts.</span>";
+                return;
+            }
+
+            const currentPct = ((attended / conducted) * 100).toFixed(1);
+            document.getElementById('current-pct').innerText = `${currentPct}%`;
+            document.getElementById('profile-attendance-display').innerText = `${currentPct}%`;
+            document.getElementById('progress-percentage-text').innerText = `${currentPct}%`;
+            document.getElementById('progress-bar-fill').style.width = `${Math.min(currentPct, 100)}%`;
+
+            const resultEl = document.getElementById('attendance-msg');
+
+            if (currentPct >= target) {
+                const canSkip = Math.floor((attended - (target / 100) * conducted) / (target / 100));
+                resultEl.innerHTML = `✅ <strong>Optimal Attendance!</strong> You can safely miss up to <strong>${canSkip >= 0 ? canSkip : 0} upcoming lectures</strong> while staying above ${target}%.`;
+                document.getElementById('progress-bar-fill').className = "bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-500";
+            } else {
+                const needed = Math.ceil(((target / 100) * conducted - attended) / (1 - (target / 100)));
+                resultEl.innerHTML = `⚠️ <strong>Attendance Deficit!</strong> You need to attend the next <strong>${needed} consecutive lectures</strong> to reach your ${target}% target.`;
+                document.getElementById('progress-bar-fill').className = "bg-gradient-to-r from-rose-400 to-amber-500 h-full rounded-full transition-all duration-500";
+            }
+        }
+
+        window.onload = function() {
+            loadUserProfile();
+            renderTimetable();
+        };
+    </script>
+</body>
+</html>
